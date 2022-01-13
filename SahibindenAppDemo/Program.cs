@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
-using SahibindenAppDemo.Models.Concrete;
+﻿using SahibindenAppDemo.Models.Concrete;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace SahibindenAppDemo
 {
@@ -93,6 +91,10 @@ namespace SahibindenAppDemo
 
                     
                 }
+
+
+
+
                 foreach (var item in adverts)
                 {
                     Uri itemUrl = new Uri(item.AdvertURL);
@@ -105,11 +107,27 @@ namespace SahibindenAppDemo
 
                     if (newDocument.DocumentNode.SelectSingleNode("//*[@id='classifiedDetail']/div/div[2]/div[2]/h3")!=null)
                     {
-                        HtmlAgilityPack.HtmlNode newAdvertNode = newDocument.DocumentNode.SelectSingleNode("//*[@id='classifiedDetail']/div/div[2]/div[2]/h3");
-                        item.AdvertPrice = newAdvertNode.InnerText.Split("TL")[0].ToString() + " TL";
+                        HtmlAgilityPack.HtmlNode newAdvertNodePrice = newDocument.DocumentNode.SelectSingleNode("//*[@id='classifiedDetail']/div/div[2]/div[2]/h3");
+
+                        item.AdvertPrice = newAdvertNodePrice.InnerText.Split("TL")[0].ToString() + " TL";
+
+
+
+                        HtmlAgilityPack.HtmlNode newAdvertNodeDescription = newDocument.DocumentNode.SelectSingleNode("//*[@id='classifiedDescription']/text()[normalize-space(.) != '']");
+
+                        item.AdvertDetails = newAdvertNodeDescription.InnerText.Trim();
 
                     }
                 }
+
+
+                //For average price of listed adverts
+                int length = adverts.Count();
+                var priceList = new int[] { Convert.ToInt32(adverts.Select(a=>a.AdvertPrice))};
+                double avg = Queryable.Average(priceList.AsQueryable());
+                Console.WriteLine("Average = " + avg);
+
+
 
                 // Create a file to write to.
                 var path = "TextFile.txt";
